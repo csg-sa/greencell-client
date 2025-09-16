@@ -1,6 +1,10 @@
+[build-system]
+requires = ["setuptools>=64", "setuptools_scm[toml]>=8", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "greencell_client"
-version = "1.0.3"
+dynamic = ["version"]
 authors = [
   { name="Jakub Brzezowski", email="jakub.brzezowski@greencell.pl" },
 ]
@@ -13,3 +17,9 @@ classifiers = [
 ]
 license = "MIT"
 license-files = ["LICENSE"]
+
+[tool.setuptools_scm]
+tag_regex = "^v?(?P<version>\\d+\\.\\d+\\.\\d+)$"
+version_scheme = "no-guess-dev"
+local_scheme = "no-local-version"
+write_to = "src/greencell_client/_version.py"
