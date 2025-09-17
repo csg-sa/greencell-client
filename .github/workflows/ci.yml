@@ -84,5 +84,9 @@ jobs:
           pip install build
           python -m build
 
+      - name: Inspect wheel METADATA
+        run: |
+          python ci/check_version.py
+
       - name: Publish to PyPI (Trusted Publishing)
-        uses: pypa/gh-action-pypi-publish@v1.10.3
+        uses: pypa/gh-action-pypi-publish@release/v1

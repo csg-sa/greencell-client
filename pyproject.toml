@@ -8,7 +8,7 @@ dynamic = ["version"]
 authors = [
   { name="Jakub Brzezowski", email="jakub.brzezowski@greencell.pl" },
 ]
-description = "A small example package"
+description = "Support for communication with Greencell devices using by Home Assistant integration"
 readme = "README.md"
 requires-python = ">=3.9"
 classifiers = [
