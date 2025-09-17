@@ -7,6 +7,11 @@ Welcome to greencell-client’s documentation!
 
    api/modules
 
+.. toctree::
+   :maxdepth: 1
+
+   license
+
 Indices and tables
 ==================
 * :ref:`genindex`
