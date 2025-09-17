@@ -1,5 +1,26 @@
-""" mqtt_parser.py
-This module contains utilities required to parsing MQTT messages for the Greencell EVSE client.
+"""
+mqtt_parser.py
+==============
+
+Utilities for parsing MQTT messages for the Greencell EVSE client.
+
+This module provides:
+
+- :func:`_get_json_value` – safe JSON extraction with logging.
+- :class:`MqttParser` – helpers to map incoming payloads to data objects:
+
+  * :meth:`MqttParser.parse_3phase_msg` – updates :class:`ElecData3Phase`.
+  * :meth:`MqttParser.parse_single_phase_msg` – updates :class:`ElecDataSinglePhase`.
+
+All helpers return ``True`` on success and log detailed errors on malformed payloads.
+
+Example
+-------
+.. code-block:: python
+
+   ok = MqttParser.parse_single_phase_msg(msg, "power", single_phase_data)
+   if not ok:
+       _LOGGER.warning("Payload ignored due to parsing error")
 """
 
 import json
@@ -13,7 +34,12 @@ _LOGGER = logging.getLogger(__name__)
 
 
 def _get_json_value(data: str) -> dict:
-    """Extract JSON data from a string."""
+    """Extract JSON data from a string.
+
+    Args:
+        data (str): The string containing JSON data.
+    Returns:
+        dict: Parsed JSON data as a dictionary."""
     try:
         return json.loads(data)
     except JSONDecodeError as ex:
@@ -27,9 +53,12 @@ class MqttParser:
     @staticmethod
     def parse_3phase_msg(msg: str, ThreePhaseData: ElecData3Phase) -> bool:
         """Parse current data from MQTT message and update the 3Phase data object.
-        :param msg: The MQTT message containing current data.
-        :param ThreePhaseData: An instance of ElecData3Phase to update with parsed data.
-        :return: True if parsing was successful, False otherwise.
+
+        Args:
+            msg: The MQTT message containing current data.
+            ThreePhaseData: An instance of ElecData3Phase to update with parsed data.
+        Returns:
+            bool: True if parsing was successful, False otherwise.
         """
 
         data = _get_json_value(msg)
@@ -55,10 +84,13 @@ class MqttParser:
     @staticmethod
     def parse_single_phase_msg(msg: str, key: str, SinglePhaseData: ElecDataSinglePhase) -> bool:
         """Parse current data from MQTT message and update the single phase data object.
-        :param msg: The MQTT message containing current data.
-        :param key: The key in the JSON data to extract single phase value.
-        :param SinglePhaseData: An instance of ElecDataSinglePhase to update with parsed data.
-        :return: True if parsing was successful, False otherwise.
+
+        Args:
+            msg: The MQTT message containing current data.
+            key: The key in the JSON data to extract single phase value.
+            SinglePhaseData: An instance of ElecDataSinglePhase to update with parsed data.
+        Returns:
+            bool: True if parsing was successful, False otherwise.
         """
 
         data = _get_json_value(msg)

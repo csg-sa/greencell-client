@@ -1,0 +1,72 @@
+name: Docs
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'docs/**'
+      - 'src/**'
+      - 'pyproject.toml'
+      - 'setup.cfg'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write         # required for deploy-pages
+  id-token: write      # required for deploy-pages
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (with full history for version tools)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install doc deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r docs/requirements.txt
+
+      - name: Install package (editable) if present
+        run: |
+          if [ -f pyproject.toml ] || [ -f setup.cfg ] || [ -f setup.py ]; then
+            pip install -e .
+          fi
+
+      - name: Generate API stubs (sphinx-apidoc)
+        run: |
+          rm -rf docs/api
+          sphinx-apidoc -o docs/api src/greencell_client -f
+
+      - name: Build HTML
+        run: |
+          sphinx-build -b html docs docs/_build/html
+          # Ensure no Jekyll processing on GitHub Pages)
+          touch docs/_build/html/.nojekyll
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/_build/html
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

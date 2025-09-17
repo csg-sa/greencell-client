@@ -1,15 +1,38 @@
-"""access.py
-
-Helper class for managing Home Assistant access levels for Greencell EVSE devices.
-
-Classes:
-- GreencellAccess: tracks the current access level (DISABLED, READ_ONLY, EXECUTE, OFFLINE),
-  notifies registered listeners on changes, and provides utility methods:
-    * update(new_access_level: str) – parse and set a new access level from its string name.
-    * register_listener(listener: Callable) – add callbacks to invoke when access changes.
-    * can_execute() -> bool – returns True if the level allows executing commands.
-    * is_disabled() -> bool – returns True if access is DISABLED or OFFLINE.
 """
+Home Assistant access helpers
+=============================
+
+Utilities for managing Home Assistant access levels in Greencell EVSE devices.
+
+This module provides:
+
+- :class:`GreencellHaAccessLevel` – enumeration of access levels
+  (``DISABLED``, ``READ``, ``EXECUTE``, ``OFFLINE`` [deprecated], ``UNAVAILABLE``).
+- :class:`GreencellAccess` – stateful helper that tracks the current level and
+  notifies registered listeners.
+
+GreencellAccess API
+-------------------
+* :meth:`GreencellAccess.update` – set a new level from its string name.
+* :meth:`GreencellAccess.register_listener` – add a callback invoked on changes.
+* :meth:`GreencellAccess.can_execute` – returns ``True`` when commands are allowed.
+* :meth:`GreencellAccess.is_disabled` – returns ``True`` when control is disabled.
+
+.. note::
+   ``OFFLINE`` is deprecated and kept for backward compatibility.
+   Treat it as ``UNAVAILABLE`` (or ``DISABLED`` depending on your application).
+
+Example
+-------
+.. code-block:: python
+
+   access = GreencellAccess()
+   access.register_listener(lambda: print("access changed:", access.level))
+   access.update("READ")
+   if access.can_execute():
+       send_command()
+"""
+
 from collections.abc import Callable
 from enum import auto
 from json import JSONDecodeError
@@ -22,12 +45,28 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class GreencellHaAccessLevel(GreencellEnum):
-    """Enumeration for Greencell Home Assistant access levels."""
+    """
+    Access level configured on the device for the Home Assistant integration.
+    """
+
     DISABLED = auto()
+    """Integration disabled on device; do not read telemetry or send commands."""
+
     READ = auto()
+    """Read-only access; telemetry allowed, commands blocked."""
+
     EXECUTE = auto()
+    """Full access; telemetry and command execution allowed."""
+
     OFFLINE = auto()
+    """.. deprecated:: 1.0.2
+
+       Use :data:`GreencellHaAccessLevel.UNAVAILABLE` instead.
+       Kept only for backward compatibility.
+    """
+
     UNAVAILABLE = auto()
+    """Integration not provisioned/configured; entity is unavailable."""
 
 
 class GreencellAccess:
@@ -38,7 +77,11 @@ class GreencellAccess:
         self._listeners = []
 
     def update(self, new_access_level: str) -> None:
-        """Update the access level and notify listeners."""
+        """Update the access level and notify listeners.
+
+        Args:
+            new_access_level: The new access level as a string.
+        """
         self._access_level = GreencellHaAccessLevel.__members__.get(
             new_access_level, GreencellHaAccessLevel.DISABLED
         )
@@ -49,7 +92,11 @@ class GreencellAccess:
         self._notify_listeners()
 
     def register_listener(self, listener: Callable[[], None]) -> None:
-        """Register a listener to be notified when the access level changes."""
+        """Register a listener to be notified of access level changes.
+
+        Args:
+            listener: A callable that will be called when the access level changes.
+        """
         self._listeners.append(listener)
 
     def _notify_listeners(self) -> None:
@@ -69,7 +116,11 @@ class GreencellAccess:
         )
 
     def on_msg(self, msg: str) -> None:
-        """Handle incoming messages to update access level."""
+        """Handle incoming messages to update access level.
+
+        Args:
+            msg: The message containing the new access level.
+        """
         try:
             data = json.loads(msg)
         except JSONDecodeError as ex:
