@@ -36,7 +36,7 @@ Example
 from collections.abc import Callable
 from enum import auto
 from json import JSONDecodeError
-from .utils import GreencellEnum
+from .utils import GreencellEnum, MqttPayload
 
 import logging
 import json
@@ -72,9 +72,9 @@ class GreencellHaAccessLevel(GreencellEnum):
 class GreencellAccess:
     """Class to manage access levels for Greencell devices."""
 
-    def __init__(self, access_level: GreencellHaAccessLevel):
+    def __init__(self, access_level: GreencellHaAccessLevel) -> None:
         self._access_level = access_level
-        self._listeners = []
+        self._listeners: list[Callable[[], None]] = []
 
     def update(self, new_access_level: str) -> None:
         """Update the access level and notify listeners.
@@ -115,7 +115,7 @@ class GreencellAccess:
             or self._access_level == GreencellHaAccessLevel.UNAVAILABLE
         )
 
-    def on_msg(self, msg: str) -> None:
+    def on_msg(self, msg: MqttPayload) -> None:
         """Handle incoming messages to update access level.
 
         Args:

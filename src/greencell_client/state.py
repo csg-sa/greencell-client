@@ -71,7 +71,7 @@ class EvseStateData:
     def __init__(self) -> None:
         """Initialize the EVSE state data tracker."""
         self._state = EvseStateEnum.UNKNOWN
-        self._listeners = []
+        self._listeners: list[Callable[[], None]] = []
         self._charging = False
 
     def update(self, new_state: str) -> None:

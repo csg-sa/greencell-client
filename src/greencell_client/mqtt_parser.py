@@ -27,31 +27,40 @@ import json
 import logging
 
 from json import JSONDecodeError
+from typing import Any
 from .elec_data import ElecData3Phase, ElecDataSinglePhase
+from .utils import MqttPayload
 
 
 _LOGGER = logging.getLogger(__name__)
 
 
-def _get_json_value(data: str) -> dict:
-    """Extract JSON data from a string.
+def _get_json_value(data: MqttPayload) -> dict[str, Any]:
+    """Extract JSON data from a payload.
 
     Args:
-        data (str): The string containing JSON data.
+        data (MqttPayload): The payload containing JSON data.
     Returns:
-        dict: Parsed JSON data as a dictionary."""
+        dict[str, Any]: Parsed JSON object, or an empty dict if the payload is
+        not a JSON object."""
     try:
-        return json.loads(data)
+        value = json.loads(data)
     except JSONDecodeError as ex:
         _LOGGER.error("Invalid JSON payload: %s", ex)
         return {}
+
+    if not isinstance(value, dict):
+        _LOGGER.error("Expected a JSON object, got %s", type(value).__name__)
+        return {}
+
+    return value
 
 
 class MqttParser:
     """Parser for MQTT messages related to Greencell EVSE devices."""
 
     @staticmethod
-    def parse_3phase_msg(msg: str, ThreePhaseData: ElecData3Phase) -> bool:
+    def parse_3phase_msg(msg: MqttPayload, ThreePhaseData: ElecData3Phase) -> bool:
         """Parse current data from MQTT message and update the 3Phase data object.
 
         Args:
@@ -82,7 +91,9 @@ class MqttParser:
             return False
 
     @staticmethod
-    def parse_single_phase_msg(msg: str, key: str, SinglePhaseData: ElecDataSinglePhase) -> bool:
+    def parse_single_phase_msg(
+        msg: MqttPayload, key: str, SinglePhaseData: ElecDataSinglePhase
+    ) -> bool:
         """Parse current data from MQTT message and update the single phase data object.
 
         Args:

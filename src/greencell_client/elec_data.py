@@ -40,11 +40,11 @@ class ElecData3Phase:
     l2: Optional[Any] = None
     l3: Optional[Any] = None
 
-    def update_data(self, new_data: dict) -> None:
+    def update_data(self, new_data: dict[str, Any]) -> None:
         """Update sensor data if the dictionary contains keys corresponding to the phases.
 
         Args:
-            new_data (dict): Dictionary containing new data for the phases.
+            new_data (dict[str, Any]): Dictionary containing new data for the phases.
         """
         for f in fields(self):
             if f.name in new_data:
@@ -72,7 +72,7 @@ class ElecDataSinglePhase:
     """Dataclass storing single-value data like power, etc."""
     value: Optional[Any] = None
 
-    def update_data(self, new_data) -> None:
+    def update_data(self, new_data: Any) -> None:
         """Update the single phase data with new data.
 
         Args:

@@ -5,6 +5,7 @@ Utilities & enums for the Greencell EVSE client
 This module provides:
 
 - :data:`GREENCELL_HABU_DEN_SERIAL_PREFIX` – common serial prefix for Habu Den devices.
+- :data:`MqttPayload` – type of a raw MQTT payload accepted by the client's parsers.
 - :class:`GreencellEnum` – base class for string-valued enums with doc support.
 - :class:`GreencellUtils` – helper utilities, e.g. serial validation:
 
@@ -27,15 +28,26 @@ Example
 
 """
 from enum import Enum, EnumMeta
+from typing import Any, Union
 import re
 
 
 GREENCELL_HABU_DEN_SERIAL_PREFIX = "EVGC02"
 
+# Mirrors the payload types json.loads accepts, and the ones Home Assistant
+# hands to an MQTT subscription callback.
+MqttPayload = Union[str, bytes, bytearray]
+
 
 class _DocEnumMeta(EnumMeta):
     """Metaclass for Greencell enums that supports documentation strings."""
-    def __new__(metacls, cls, bases, classdict, **kw):
+    def __new__(
+        metacls,
+        cls: str,
+        bases: tuple[type, ...],
+        classdict: Any,
+        **kw: Any,
+    ) -> "_DocEnumMeta":
         """Create a new enum class with documentation support.
         Args:
             metacls: The metaclass.
@@ -49,6 +61,7 @@ class _DocEnumMeta(EnumMeta):
         docs_map = dict(classdict.get("__docs__", {}))
         enum_cls = super().__new__(metacls, cls, bases, classdict, **kw)
 
+        member: Enum
         for name, member in enum_cls.__members__.items():
             if name in docs_map:
                 member.__doc__ = docs_map[name]
@@ -57,7 +70,9 @@ class _DocEnumMeta(EnumMeta):
 
 class GreencellEnum(str, Enum, metaclass=_DocEnumMeta):
     """Base class for Greencell enums with documentation support."""
-    def _generate_next_value_(name, start, count, last_values):  # type: ignore[override]
+    def _generate_next_value_(  # type: ignore[override]
+        name: str, start: int, count: int, last_values: list[Any]
+    ) -> str:
         """Generate the next value for the enum member.
         Args:
             name: The name of the enum member.
