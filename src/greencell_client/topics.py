@@ -1,3 +1,5 @@
+# Copyright (c) 2025 csg-sa
+
 """MQTT topics utilities for Greencell EVSE integration.
 
 This module defines helpers for building and caching MQTT topics used by

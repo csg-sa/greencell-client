@@ -67,11 +67,12 @@ ignore = [
 
     # Style-only, high volume, no functional benefit.
     "EM101", "EM102", "TRY003",
-
-    # Wants a copyright header in every file. The project ships a single MIT
-    # LICENSE instead; adding per-file notices is a licensing decision.
-    "CPY001",
 ]
+
+[tool.ruff.lint.flake8-copyright]
+# Matches the holder in LICENSE. Greencell is a trademark of csg-sa, so the
+# copyright notice names the legal entity, not the brand.
+author = "csg-sa"
 
 [tool.ruff.lint.per-file-ignores]
 # Enum machinery dictates these signatures: metaclass __new__ takes `metacls`,

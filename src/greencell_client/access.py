@@ -1,3 +1,5 @@
+# Copyright (c) 2025 csg-sa
+
 """
 Home Assistant access helpers
 =============================

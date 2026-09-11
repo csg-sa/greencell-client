@@ -1,3 +1,5 @@
+# Copyright (c) 2025 csg-sa
+
 """
 mqtt_parser.py
 ==============

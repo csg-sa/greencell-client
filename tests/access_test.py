@@ -1,3 +1,5 @@
+# Copyright (c) 2025 csg-sa
+
 from unittest.mock import Mock
 
 import pytest

@@ -1,3 +1,5 @@
+# Copyright (c) 2025 csg-sa
+
 from greencell_client import mqtt_parser
 from greencell_client.elec_data import ElecData3Phase, ElecDataSinglePhase
 

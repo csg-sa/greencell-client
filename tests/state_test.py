@@ -1,3 +1,5 @@
+# Copyright (c) 2025 csg-sa
+
 import pytest
 
 from greencell_client.state import EvseStateData
