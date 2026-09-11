@@ -141,5 +141,5 @@ class GreencellAccess:
             _LOGGER.warning("Type error while updating access level: %s", ex)
         except ValueError as ex:
             _LOGGER.warning("Value error while updating access level: %s", ex)
-        except Exception as ex:
+        except AttributeError as ex:
             _LOGGER.warning("Unexpected error while updating access level: %s", ex)

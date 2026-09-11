@@ -14,7 +14,7 @@ copyright = f"{date.today().year} CSG SA — MIT License"
 root_doc = "index"
 try:
     from greencell_client import __version__ as release
-except Exception:
+except ImportError:
     release = ""
 
 # -- General configuration ---------------------------------------------------

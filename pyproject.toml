@@ -59,11 +59,6 @@ ignore = [
     # changing annotations to strings at runtime. Not worth it for a client lib.
     "FA100",
 
-    # Each of these needs a judgement call about behaviour, not a mechanical
-    # fix, so they are deliberately deferred rather than silenced for good:
-    "ANN401",  # `Any` in 5 signatures
-    "BLE001",  # 4 broad `except Exception`
-    "TRY300",  # try/return -> try/else in the parser
 
     # Style-only, high volume, no functional benefit.
     "EM101", "EM102", "TRY003",
@@ -77,7 +72,9 @@ author = "csg-sa"
 [tool.ruff.lint.per-file-ignores]
 # Enum machinery dictates these signatures: metaclass __new__ takes `metacls`,
 # and _generate_next_value_ takes `name` first with three arguments it ignores.
-"src/greencell_client/utils.py" = ["N804", "N805", "ARG002"]
+# ANN401 likewise: EnumMeta.__new__ wants the private `enum._EnumDict` for
+# `classdict`, so `Any` is the only annotation mypy --strict accepts here.
+"src/greencell_client/utils.py" = ["N804", "N805", "ARG002", "ANN401"]
 # The docstring documents `Raises: ValueError`; TypeError would break callers.
 "src/greencell_client/topics.py" = ["TRY004"]
 # Early returns are the clearest shape for a payload parser (7 > 6 allowed).

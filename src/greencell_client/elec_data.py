@@ -52,19 +52,20 @@ class ElecData3Phase:
             if f.name in new_data:
                 setattr(self, f.name, new_data[f.name])
 
-    def get_value(self, phase: str) -> Optional[Any]:
+    def get_value(self, phase: str) -> Optional[object]:
         """Get the value for a specific phase.
 
         Args:
             phase (str): The phase to retrieve the value for (e.g., 'l1', 'l2', 'l3').
         Returns:
-            Optional[Any]: The value for the specified phase, or None if the phase is invalid.
+            Optional[object]: The value for the specified phase, or None if the phase is invalid.
         Raises:
             ValueError: If the phase is not one of 'l1', 'l2', or 'l3'.
         """
         for f in fields(self):
             if f.name == phase:
-                return getattr(self, f.name)
+                value: object = getattr(self, f.name)
+                return value
         raise ValueError(
             f"Invalid phase: {phase}. Valid phases are \
                          {', '.join(f.name for f in fields(self))}."
@@ -77,19 +78,20 @@ class ElecDataSinglePhase:
 
     value: Optional[Any] = None
 
-    def update_data(self, new_data: Any) -> None:
+    def update_data(self, new_data: object) -> None:
         """Update the single phase data with new data.
 
         Args:
-            new_data (Any): New data to update the value with.
+            new_data (object): New data to update the value with. Stored
+                unchanged, whatever the payload contains.
         """
         self.value = new_data
 
     @property
-    def data(self) -> Optional[Any]:
+    def data(self) -> Optional[object]:
         """Get the current value of the single phase data.
 
         Returns:
-            Optional[Any]: The current value of the single phase data.
+            Optional[object]: The current value of the single phase data.
         """
         return self.value

@@ -77,7 +77,6 @@ class MqttParser:
 
         try:
             ThreePhaseData.update_data(data)
-            return True
         except KeyError as ex:
             _LOGGER.warning("Key error while updating 3-phase data: %s", ex)
             return False
@@ -87,9 +86,11 @@ class MqttParser:
         except ValueError as ex:
             _LOGGER.warning("Value error while updating 3-phase data: %s", ex)
             return False
-        except Exception as ex:
+        except AttributeError as ex:
             _LOGGER.warning("Unexpected error while updating 3-phase data: %s", ex)
             return False
+        else:
+            return True
 
     @staticmethod
     def parse_single_phase_msg(
@@ -119,13 +120,14 @@ class MqttParser:
 
         try:
             SinglePhaseData.update_data(value)
-            return True
         except TypeError as ex:
             _LOGGER.warning("Type error while updating single phase data: %s", ex)
             return False
         except ValueError as ex:
             _LOGGER.warning("Value error while updating single phase data: %s", ex)
             return False
-        except Exception as ex:
+        except AttributeError as ex:
             _LOGGER.warning("Unexpected error while updating single phase data: %s", ex)
             return False
+        else:
+            return True
