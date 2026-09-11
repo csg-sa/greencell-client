@@ -77,17 +77,8 @@ class MqttParser:
 
         try:
             ThreePhaseData.update_data(data)
-        except KeyError as ex:
-            _LOGGER.warning("Key error while updating 3-phase data: %s", ex)
-            return False
-        except TypeError as ex:
-            _LOGGER.warning("Type error while updating 3-phase data: %s", ex)
-            return False
-        except ValueError as ex:
-            _LOGGER.warning("Value error while updating 3-phase data: %s", ex)
-            return False
-        except AttributeError as ex:
-            _LOGGER.warning("Unexpected error while updating 3-phase data: %s", ex)
+        except (KeyError, TypeError, ValueError, AttributeError) as ex:
+            _LOGGER.warning("Failed to update 3-phase data: %r", ex)
             return False
         else:
             return True
@@ -109,25 +100,15 @@ class MqttParser:
         if not data:
             return False
 
-        try:
-            value = data[key]
-            if value is None:
-                _LOGGER.error("Key '%s' not found in message: %s", key, msg)
-                return False
-        except KeyError as ex:
-            _LOGGER.warning("Key error while parsing single phase data: %s", ex)
+        value = data.get(key)
+        if value is None:
+            _LOGGER.error("Key '%s' not found in message: %s", key, msg)
             return False
 
         try:
             SinglePhaseData.update_data(value)
-        except TypeError as ex:
-            _LOGGER.warning("Type error while updating single phase data: %s", ex)
-            return False
-        except ValueError as ex:
-            _LOGGER.warning("Value error while updating single phase data: %s", ex)
-            return False
-        except AttributeError as ex:
-            _LOGGER.warning("Unexpected error while updating single phase data: %s", ex)
+        except (TypeError, ValueError, AttributeError) as ex:
+            _LOGGER.warning("Failed to update single phase data: %r", ex)
             return False
         else:
             return True

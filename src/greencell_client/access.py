@@ -135,11 +135,5 @@ class GreencellAccess:
         try:
             self.update(new_access_level)
             _LOGGER.debug("Access level updated to %s", new_access_level)
-        except KeyError as ex:
-            _LOGGER.warning("Invalid access level in message: %s", ex)
-        except TypeError as ex:
-            _LOGGER.warning("Type error while updating access level: %s", ex)
-        except ValueError as ex:
-            _LOGGER.warning("Value error while updating access level: %s", ex)
-        except AttributeError as ex:
-            _LOGGER.warning("Unexpected error while updating access level: %s", ex)
+        except (KeyError, TypeError, ValueError, AttributeError) as ex:
+            _LOGGER.warning("Failed to update access level: %r", ex)
