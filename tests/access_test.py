@@ -45,7 +45,7 @@ def test_listener_is_called_on_update():
 
     access.update("EXECUTE")
 
-    mock_listener.assert_called_once(), "Listener was not called on access level update"
+    assert mock_listener.call_count == 1, "Listener was not called on access level update"
 
 
 def test_multiple_listeners():
@@ -57,7 +57,7 @@ def test_multiple_listeners():
     access.update("READ")
 
     for listener in listeners:
-        listener.assert_called_once(), "Listener was not called on access level update"
+        assert listener.call_count == 1, "Listener was not called on access level update"
 
 
 # === No listeners registered ===
