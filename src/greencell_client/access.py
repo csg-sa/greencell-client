@@ -125,7 +125,7 @@ class GreencellAccess:
         try:
             data = json.loads(msg)
         except JSONDecodeError as ex:
-            _LOGGER.error("Failed to decode JSON message: %s", ex)
+            _LOGGER.warning("Failed to decode JSON message: %s", ex)
             self.update("DISABLED")
             return
 
@@ -134,10 +134,10 @@ class GreencellAccess:
             self.update(new_access_level)
             _LOGGER.debug("Access level updated to %s", new_access_level)
         except KeyError as ex:
-            _LOGGER.error("Invalid access level in message: %s", ex)
+            _LOGGER.warning("Invalid access level in message: %s", ex)
         except TypeError as ex:
-            _LOGGER.error("Type error while updating access level: %s", ex)
+            _LOGGER.warning("Type error while updating access level: %s", ex)
         except ValueError as ex:
-            _LOGGER.error("Value error while updating access level: %s", ex)
+            _LOGGER.warning("Value error while updating access level: %s", ex)
         except Exception as ex:
-            _LOGGER.error("Unexpected error while updating access level: %s", ex)
+            _LOGGER.warning("Unexpected error while updating access level: %s", ex)

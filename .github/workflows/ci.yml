@@ -20,8 +20,6 @@ jobs:
         with:
           python-version: '3.11'
 
-      # Pinned: `select = ["ALL"]` opts in to new rules as ruff adds them, so an
-      # unpinned install would fail unrelated PRs whenever ruff releases.
       - name: Install ruff
         run: |
           python -m pip install --upgrade pip

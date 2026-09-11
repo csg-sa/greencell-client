@@ -64,9 +64,6 @@ ignore = [
     "ANN401",  # `Any` in 5 signatures
     "BLE001",  # 4 broad `except Exception`
     "TRY300",  # try/return -> try/else in the parser
-    # `logging.exception` would attach a full traceback to all 14 of these,
-    # spamming Home Assistant logs on every malformed MQTT payload.
-    "TRY400",
 
     # Style-only, high volume, no functional benefit.
     "EM101", "EM102", "TRY003",

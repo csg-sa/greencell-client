@@ -46,7 +46,7 @@ def _get_json_value(data: MqttPayload) -> dict[str, Any]:
     try:
         value = json.loads(data)
     except JSONDecodeError as ex:
-        _LOGGER.error("Invalid JSON payload: %s", ex)
+        _LOGGER.warning("Invalid JSON payload: %s", ex)
         return {}
 
     if not isinstance(value, dict):
@@ -77,16 +77,16 @@ class MqttParser:
             ThreePhaseData.update_data(data)
             return True
         except KeyError as ex:
-            _LOGGER.error("Key error while updating 3-phase data: %s", ex)
+            _LOGGER.warning("Key error while updating 3-phase data: %s", ex)
             return False
         except TypeError as ex:
-            _LOGGER.error("Type error while updating 3-phase data: %s", ex)
+            _LOGGER.warning("Type error while updating 3-phase data: %s", ex)
             return False
         except ValueError as ex:
-            _LOGGER.error("Value error while updating 3-phase data: %s", ex)
+            _LOGGER.warning("Value error while updating 3-phase data: %s", ex)
             return False
         except Exception as ex:
-            _LOGGER.error("Unexpected error while updating 3-phase data: %s", ex)
+            _LOGGER.warning("Unexpected error while updating 3-phase data: %s", ex)
             return False
 
     @staticmethod
@@ -112,18 +112,18 @@ class MqttParser:
                 _LOGGER.error("Key '%s' not found in message: %s", key, msg)
                 return False
         except KeyError as ex:
-            _LOGGER.error("Key error while parsing single phase data: %s", ex)
+            _LOGGER.warning("Key error while parsing single phase data: %s", ex)
             return False
 
         try:
             SinglePhaseData.update_data(value)
             return True
         except TypeError as ex:
-            _LOGGER.error("Type error while updating single phase data: %s", ex)
+            _LOGGER.warning("Type error while updating single phase data: %s", ex)
             return False
         except ValueError as ex:
-            _LOGGER.error("Value error while updating single phase data: %s", ex)
+            _LOGGER.warning("Value error while updating single phase data: %s", ex)
             return False
         except Exception as ex:
-            _LOGGER.error("Unexpected error while updating single phase data: %s", ex)
+            _LOGGER.warning("Unexpected error while updating single phase data: %s", ex)
             return False
