@@ -25,12 +25,11 @@ Example
 
 import json
 import logging
-
 from json import JSONDecodeError
 from typing import Any
+
 from .elec_data import ElecData3Phase, ElecDataSinglePhase
 from .utils import MqttPayload
-
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -42,7 +41,8 @@ def _get_json_value(data: MqttPayload) -> dict[str, Any]:
         data (MqttPayload): The payload containing JSON data.
     Returns:
         dict[str, Any]: Parsed JSON object, or an empty dict if the payload is
-        not a JSON object."""
+        not a JSON object.
+    """
     try:
         value = json.loads(data)
     except JSONDecodeError as ex:
@@ -69,7 +69,6 @@ class MqttParser:
         Returns:
             bool: True if parsing was successful, False otherwise.
         """
-
         data = _get_json_value(msg)
         if not data:
             return False
@@ -103,7 +102,6 @@ class MqttParser:
         Returns:
             bool: True if parsing was successful, False otherwise.
         """
-
         data = _get_json_value(msg)
         if not data:
             return False

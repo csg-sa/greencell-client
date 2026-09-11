@@ -37,8 +37,9 @@ def test_parse_3phase_msg_type_error():
     elec_data = ElecData3Phase()
 
     assert mqtt_parser.MqttParser.parse_3phase_msg(msg, elec_data)
-    assert elec_data.l1 == "not_a_float", \
+    assert elec_data.l1 == "not_a_float", (
         "3-phase data should accept string input without conversion"
+    )
     assert elec_data.l2 == 230.0, "3-phase data should be updated correctly for l2"
     assert elec_data.l3 == 230.0, "3-phase data should be updated correctly for l3"
 
@@ -72,5 +73,6 @@ def test_parse_single_phase_msg_type_error():
     elec_data = ElecDataSinglePhase()
 
     assert mqtt_parser.MqttParser.parse_single_phase_msg(msg, "voltage", elec_data)
-    assert elec_data.data == "not_a_float", \
+    assert elec_data.data == "not_a_float", (
         "Single phase data should accept string input without conversion"
+    )

@@ -33,13 +33,13 @@ Example
        send_command()
 """
 
+import json
+import logging
 from collections.abc import Callable
 from enum import auto
 from json import JSONDecodeError
-from .utils import GreencellEnum, MqttPayload
 
-import logging
-import json
+from .utils import GreencellEnum, MqttPayload
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -73,6 +73,7 @@ class GreencellAccess:
     """Class to manage access levels for Greencell devices."""
 
     def __init__(self, access_level: GreencellHaAccessLevel) -> None:
+        """Initialize the access manager with a starting access level."""
         self._access_level = access_level
         self._listeners: list[Callable[[], None]] = []
 
@@ -86,7 +87,7 @@ class GreencellAccess:
             new_access_level, GreencellHaAccessLevel.DISABLED
         )
 
-        if GreencellHaAccessLevel.OFFLINE == self._access_level:
+        if self._access_level == GreencellHaAccessLevel.OFFLINE:
             _LOGGER.warning("OFFLINE access level is deprecated, using UNAVAILABLE instead.")
             self._access_level = GreencellHaAccessLevel.UNAVAILABLE
         self._notify_listeners()
@@ -110,9 +111,9 @@ class GreencellAccess:
 
     def is_disabled(self) -> bool:
         """Check if the current access level is disabled."""
-        return (
-            self._access_level == GreencellHaAccessLevel.DISABLED
-            or self._access_level == GreencellHaAccessLevel.UNAVAILABLE
+        return self._access_level in (
+            GreencellHaAccessLevel.DISABLED,
+            GreencellHaAccessLevel.UNAVAILABLE,
         )
 
     def on_msg(self, msg: MqttPayload) -> None:

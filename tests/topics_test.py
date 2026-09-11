@@ -1,5 +1,6 @@
-import pytest
 from types import MappingProxyType
+
+import pytest
 
 from greencell_client import topics
 

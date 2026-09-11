@@ -23,9 +23,9 @@ Typical usage:
 
 """
 
+from collections.abc import Mapping
 from functools import lru_cache
 from types import MappingProxyType
-from typing import Mapping
 
 MQTT_TOPIC_BASE = "/greencell/evse"
 MAX_CACHE_SIZE = 128
@@ -56,15 +56,15 @@ def get_mqtt_topics(serial_number: str) -> Mapping[str, str]:
     serial = serial_number.strip()
     if not serial:
         raise ValueError("Invalid serial number: empty/whitespace")
-    if any(ch in serial for ch in ' #+'):
+    if any(ch in serial for ch in " #+"):
         raise ValueError(f"Invalid serial number for MQTT topic: {serial!r}")
 
     base = f"{MQTT_TOPIC_BASE}/{serial}"
     topics = {
-        "current":      f"{base}/current",
-        "voltage":      f"{base}/voltage",
-        "power":        f"{base}/power",
-        "status":       f"{base}/status",
+        "current": f"{base}/current",
+        "voltage": f"{base}/voltage",
+        "power": f"{base}/power",
+        "status": f"{base}/status",
         "device_state": f"{base}/device_state",
     }
     # Return a read-only view of the topics mapping

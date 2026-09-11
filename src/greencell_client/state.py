@@ -30,9 +30,9 @@ Example
 """
 
 import logging
-
 from collections.abc import Callable
 from enum import auto
+
 from .utils import GreencellEnum
 
 _LOGGER = logging.getLogger(__name__)
@@ -40,6 +40,7 @@ _LOGGER = logging.getLogger(__name__)
 
 class EvseStateEnum(GreencellEnum):
     """Enumeration for Greencell EVSE states."""
+
     IDLE = auto()
     """EVSE is idle and not charging."""
 
@@ -94,10 +95,7 @@ class EvseStateData:
             bool: True if the EVSE is in a state where charging can be stopped,
                   False otherwise.
         """
-        return (
-            self._state == EvseStateEnum.WAITING_FOR_CAR
-            or self._state == EvseStateEnum.CHARGING
-        )
+        return self._state in (EvseStateEnum.WAITING_FOR_CAR, EvseStateEnum.CHARGING)
 
     def can_be_started(self) -> bool:
         """Check if the EVSE is in a state where charging can be started.
@@ -106,10 +104,7 @@ class EvseStateData:
             bool: True if the EVSE is in a state where charging can be started,
                   False otherwise.
         """
-        return (
-            self._state == EvseStateEnum.FINISHED
-            or self._state == EvseStateEnum.CONNECTED
-        )
+        return self._state in (EvseStateEnum.FINISHED, EvseStateEnum.CONNECTED)
 
     def set_charging(self, value: bool) -> None:
         """Set the charging state of the EVSE.

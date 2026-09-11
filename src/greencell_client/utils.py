@@ -27,10 +27,10 @@ Example
        print("Habu Den detected")
 
 """
+
+import re
 from enum import Enum, EnumMeta
 from typing import Any, Union
-import re
-
 
 GREENCELL_HABU_DEN_SERIAL_PREFIX = "EVGC02"
 
@@ -41,6 +41,7 @@ MqttPayload = Union[str, bytes, bytearray]
 
 class _DocEnumMeta(EnumMeta):
     """Metaclass for Greencell enums that supports documentation strings."""
+
     def __new__(
         metacls,
         cls: str,
@@ -70,6 +71,7 @@ class _DocEnumMeta(EnumMeta):
 
 class GreencellEnum(str, Enum, metaclass=_DocEnumMeta):
     """Base class for Greencell enums with documentation support."""
+
     def _generate_next_value_(  # type: ignore[override]
         name: str, start: int, count: int, last_values: list[Any]
     ) -> str:

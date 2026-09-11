@@ -28,14 +28,14 @@ Example
    print(power.data)
 """
 
-
 from dataclasses import dataclass, fields
-from typing import Optional, Any
+from typing import Any, Optional
 
 
 @dataclass
 class ElecData3Phase:
     """Dataclass storing electrical data (e.g. current or voltage) for 3 phases."""
+
     l1: Optional[Any] = None
     l2: Optional[Any] = None
     l3: Optional[Any] = None
@@ -63,13 +63,16 @@ class ElecData3Phase:
         for f in fields(self):
             if f.name == phase:
                 return getattr(self, f.name)
-        raise ValueError(f"Invalid phase: {phase}. Valid phases are \
-                         {', '.join(f.name for f in fields(self))}.")
+        raise ValueError(
+            f"Invalid phase: {phase}. Valid phases are \
+                         {', '.join(f.name for f in fields(self))}."
+        )
 
 
 @dataclass
 class ElecDataSinglePhase:
     """Dataclass storing single-value data like power, etc."""
+
     value: Optional[Any] = None
 
     def update_data(self, new_data: Any) -> None:
