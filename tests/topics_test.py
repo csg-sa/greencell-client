@@ -23,6 +23,25 @@ def test_valid_topics_returned_and_immutable():
         test_topics["new"] = "value"
 
 
+def test_topics_accessible_by_enum_member_and_plain_string():
+    serial = "EVSE123"
+    test_topics = topics.get_mqtt_topics(serial)
+
+    assert set(test_topics) == {topic.value for topic in topics.MqttTopic}
+
+    for topic in topics.MqttTopic:
+        assert test_topics[topic] == test_topics[topic.value], (
+            "Enum member and its string value must resolve to the same entry"
+        )
+        assert test_topics[topic] == f"{topics.MQTT_TOPIC_BASE}/{serial}/{topic.value}"
+
+
+def test_topic_values_are_lowercase_segments():
+    # auto() would yield the member NAME (uppercase) and silently break topics.
+    for topic in topics.MqttTopic:
+        assert topic.value == topic.value.lower(), f"{topic.name} must be a lowercase segment"
+
+
 def test_caching_behavior(monkeypatch):
     serial = "CACHE123"
 
