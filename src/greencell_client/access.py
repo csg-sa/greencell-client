@@ -1,3 +1,5 @@
+# Copyright (c) 2025 csg-sa
+
 """
 Home Assistant access helpers
 =============================
@@ -33,13 +35,13 @@ Example
        send_command()
 """
 
+import json
+import logging
 from collections.abc import Callable
 from enum import auto
 from json import JSONDecodeError
-from .utils import GreencellEnum
 
-import logging
-import json
+from .utils import GreencellEnum, MqttPayload
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -72,9 +74,10 @@ class GreencellHaAccessLevel(GreencellEnum):
 class GreencellAccess:
     """Class to manage access levels for Greencell devices."""
 
-    def __init__(self, access_level: GreencellHaAccessLevel):
+    def __init__(self, access_level: GreencellHaAccessLevel) -> None:
+        """Initialize the access manager with a starting access level."""
         self._access_level = access_level
-        self._listeners = []
+        self._listeners: list[Callable[[], None]] = []
 
     def update(self, new_access_level: str) -> None:
         """Update the access level and notify listeners.
@@ -86,7 +89,7 @@ class GreencellAccess:
             new_access_level, GreencellHaAccessLevel.DISABLED
         )
 
-        if GreencellHaAccessLevel.OFFLINE == self._access_level:
+        if self._access_level == GreencellHaAccessLevel.OFFLINE:
             _LOGGER.warning("OFFLINE access level is deprecated, using UNAVAILABLE instead.")
             self._access_level = GreencellHaAccessLevel.UNAVAILABLE
         self._notify_listeners()
@@ -110,12 +113,12 @@ class GreencellAccess:
 
     def is_disabled(self) -> bool:
         """Check if the current access level is disabled."""
-        return (
-            self._access_level == GreencellHaAccessLevel.DISABLED
-            or self._access_level == GreencellHaAccessLevel.UNAVAILABLE
+        return self._access_level in (
+            GreencellHaAccessLevel.DISABLED,
+            GreencellHaAccessLevel.UNAVAILABLE,
         )
 
-    def on_msg(self, msg: str) -> None:
+    def on_msg(self, msg: MqttPayload) -> None:
         """Handle incoming messages to update access level.
 
         Args:
@@ -124,7 +127,7 @@ class GreencellAccess:
         try:
             data = json.loads(msg)
         except JSONDecodeError as ex:
-            _LOGGER.error("Failed to decode JSON message: %s", ex)
+            _LOGGER.warning("Failed to decode JSON message: %s", ex)
             self.update("DISABLED")
             return
 
@@ -132,11 +135,5 @@ class GreencellAccess:
         try:
             self.update(new_access_level)
             _LOGGER.debug("Access level updated to %s", new_access_level)
-        except KeyError as ex:
-            _LOGGER.error("Invalid access level in message: %s", ex)
-        except TypeError as ex:
-            _LOGGER.error("Type error while updating access level: %s", ex)
-        except ValueError as ex:
-            _LOGGER.error("Value error while updating access level: %s", ex)
-        except Exception as ex:
-            _LOGGER.error("Unexpected error while updating access level: %s", ex)
+        except (KeyError, TypeError, ValueError, AttributeError) as ex:
+            _LOGGER.warning("Failed to update access level: %r", ex)

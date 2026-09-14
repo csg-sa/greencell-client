@@ -1,3 +1,5 @@
+# Copyright (c) 2025 csg-sa
+
 """
 Electrical data helpers
 =======================
@@ -28,63 +30,68 @@ Example
    print(power.data)
 """
 
-
 from dataclasses import dataclass, fields
-from typing import Optional, Any
+from typing import Any, Optional
 
 
 @dataclass
 class ElecData3Phase:
     """Dataclass storing electrical data (e.g. current or voltage) for 3 phases."""
+
     l1: Optional[Any] = None
     l2: Optional[Any] = None
     l3: Optional[Any] = None
 
-    def update_data(self, new_data: dict) -> None:
+    def update_data(self, new_data: dict[str, Any]) -> None:
         """Update sensor data if the dictionary contains keys corresponding to the phases.
 
         Args:
-            new_data (dict): Dictionary containing new data for the phases.
+            new_data (dict[str, Any]): Dictionary containing new data for the phases.
         """
         for f in fields(self):
             if f.name in new_data:
                 setattr(self, f.name, new_data[f.name])
 
-    def get_value(self, phase: str) -> Optional[Any]:
+    def get_value(self, phase: str) -> Optional[object]:
         """Get the value for a specific phase.
 
         Args:
             phase (str): The phase to retrieve the value for (e.g., 'l1', 'l2', 'l3').
         Returns:
-            Optional[Any]: The value for the specified phase, or None if the phase is invalid.
+            Optional[object]: The value for the specified phase, or None if the phase is invalid.
         Raises:
             ValueError: If the phase is not one of 'l1', 'l2', or 'l3'.
         """
         for f in fields(self):
             if f.name == phase:
-                return getattr(self, f.name)
-        raise ValueError(f"Invalid phase: {phase}. Valid phases are \
-                         {', '.join(f.name for f in fields(self))}.")
+                value: object = getattr(self, f.name)
+                return value
+        raise ValueError(
+            f"Invalid phase: {phase}. Valid phases are \
+                         {', '.join(f.name for f in fields(self))}."
+        )
 
 
 @dataclass
 class ElecDataSinglePhase:
     """Dataclass storing single-value data like power, etc."""
+
     value: Optional[Any] = None
 
-    def update_data(self, new_data) -> None:
+    def update_data(self, new_data: object) -> None:
         """Update the single phase data with new data.
 
         Args:
-            new_data (Any): New data to update the value with.
+            new_data (object): New data to update the value with. Stored
+                unchanged, whatever the payload contains.
         """
         self.value = new_data
 
     @property
-    def data(self) -> Optional[Any]:
+    def data(self) -> Optional[object]:
         """Get the current value of the single phase data.
 
         Returns:
-            Optional[Any]: The current value of the single phase data.
+            Optional[object]: The current value of the single phase data.
         """
         return self.value

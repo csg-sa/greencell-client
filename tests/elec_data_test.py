@@ -1,4 +1,7 @@
+# Copyright (c) 2025 csg-sa
+
 import pytest
+
 from greencell_client.elec_data import ElecData3Phase, ElecDataSinglePhase
 
 
@@ -47,8 +50,9 @@ def test_elec_data_single_phase_update():
 def test_elec_data_single_phase_update_with_string():
     elec = ElecDataSinglePhase()
     elec.update_data("not_a_float")
-    assert elec.data == "not_a_float", \
+    assert elec.data == "not_a_float", (
         "Single phase data should accept string input without conversion"
+    )
 
 
 def test_elec_data_3phase_with_none_values():

@@ -1,3 +1,5 @@
+# Copyright (c) 2025 csg-sa
+
 """
 mqtt_parser.py
 ==============
@@ -25,33 +27,42 @@ Example
 
 import json
 import logging
-
 from json import JSONDecodeError
-from .elec_data import ElecData3Phase, ElecDataSinglePhase
+from typing import Any
 
+from .elec_data import ElecData3Phase, ElecDataSinglePhase
+from .utils import MqttPayload
 
 _LOGGER = logging.getLogger(__name__)
 
 
-def _get_json_value(data: str) -> dict:
-    """Extract JSON data from a string.
+def _get_json_value(data: MqttPayload) -> dict[str, Any]:
+    """Extract JSON data from a payload.
 
     Args:
-        data (str): The string containing JSON data.
+        data (MqttPayload): The payload containing JSON data.
     Returns:
-        dict: Parsed JSON data as a dictionary."""
+        dict[str, Any]: Parsed JSON object, or an empty dict if the payload is
+        not a JSON object.
+    """
     try:
-        return json.loads(data)
+        value = json.loads(data)
     except JSONDecodeError as ex:
-        _LOGGER.error("Invalid JSON payload: %s", ex)
+        _LOGGER.warning("Invalid JSON payload: %s", ex)
         return {}
+
+    if not isinstance(value, dict):
+        _LOGGER.error("Expected a JSON object, got %s", type(value).__name__)
+        return {}
+
+    return value
 
 
 class MqttParser:
     """Parser for MQTT messages related to Greencell EVSE devices."""
 
     @staticmethod
-    def parse_3phase_msg(msg: str, ThreePhaseData: ElecData3Phase) -> bool:
+    def parse_3phase_msg(msg: MqttPayload, ThreePhaseData: ElecData3Phase) -> bool:
         """Parse current data from MQTT message and update the 3Phase data object.
 
         Args:
@@ -60,29 +71,22 @@ class MqttParser:
         Returns:
             bool: True if parsing was successful, False otherwise.
         """
-
         data = _get_json_value(msg)
         if not data:
             return False
 
         try:
             ThreePhaseData.update_data(data)
+        except (KeyError, TypeError, ValueError, AttributeError) as ex:
+            _LOGGER.warning("Failed to update 3-phase data: %r", ex)
+            return False
+        else:
             return True
-        except KeyError as ex:
-            _LOGGER.error("Key error while updating 3-phase data: %s", ex)
-            return False
-        except TypeError as ex:
-            _LOGGER.error("Type error while updating 3-phase data: %s", ex)
-            return False
-        except ValueError as ex:
-            _LOGGER.error("Value error while updating 3-phase data: %s", ex)
-            return False
-        except Exception as ex:
-            _LOGGER.error("Unexpected error while updating 3-phase data: %s", ex)
-            return False
 
     @staticmethod
-    def parse_single_phase_msg(msg: str, key: str, SinglePhaseData: ElecDataSinglePhase) -> bool:
+    def parse_single_phase_msg(
+        msg: MqttPayload, key: str, SinglePhaseData: ElecDataSinglePhase
+    ) -> bool:
         """Parse current data from MQTT message and update the single phase data object.
 
         Args:
@@ -92,29 +96,19 @@ class MqttParser:
         Returns:
             bool: True if parsing was successful, False otherwise.
         """
-
         data = _get_json_value(msg)
         if not data:
             return False
 
-        try:
-            value = data[key]
-            if value is None:
-                _LOGGER.error("Key '%s' not found in message: %s", key, msg)
-                return False
-        except KeyError as ex:
-            _LOGGER.error("Key error while parsing single phase data: %s", ex)
+        value = data.get(key)
+        if value is None:
+            _LOGGER.error("Key '%s' not found in message: %s", key, msg)
             return False
 
         try:
             SinglePhaseData.update_data(value)
+        except (TypeError, ValueError, AttributeError) as ex:
+            _LOGGER.warning("Failed to update single phase data: %r", ex)
+            return False
+        else:
             return True
-        except TypeError as ex:
-            _LOGGER.error("Type error while updating single phase data: %s", ex)
-            return False
-        except ValueError as ex:
-            _LOGGER.error("Value error while updating single phase data: %s", ex)
-            return False
-        except Exception as ex:
-            _LOGGER.error("Unexpected error while updating single phase data: %s", ex)
-            return False

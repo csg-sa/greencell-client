@@ -1,4 +1,7 @@
+# Copyright (c) 2025 csg-sa
+
 import pytest
+
 from greencell_client.state import EvseStateData
 
 
@@ -15,7 +18,7 @@ def test_initial_state_is_unknown():
 
 
 @pytest.mark.parametrize(
-    "state_name, expected_result",
+    ("state_name", "expected_result"),
     [
         ("WAITING_FOR_CAR", True),
         ("CHARGING", True),
@@ -23,17 +26,18 @@ def test_initial_state_is_unknown():
         ("FINISHED", False),
         ("ERROR_EVSE", False),
         ("UNKNOWN", False),
-    ]
+    ],
 )
 def test_can_be_stopped(state_name, expected_result):
     evse = EvseStateData()
     evse.update(state_name)
-    assert evse.can_be_stopped() is expected_result, \
+    assert evse.can_be_stopped() is expected_result, (
         f"State {state_name} should return {expected_result} for can_be_stopped"
+    )
 
 
 @pytest.mark.parametrize(
-    "state_name, expected_result",
+    ("state_name", "expected_result"),
     [
         ("FINISHED", True),
         ("CONNECTED", True),
@@ -41,13 +45,14 @@ def test_can_be_stopped(state_name, expected_result):
         ("CHARGING", False),
         ("ERROR_CAR", False),
         ("UNKNOWN", False),
-    ]
+    ],
 )
 def test_can_be_started(state_name, expected_result):
     evse = EvseStateData()
     evse.update(state_name)
-    assert evse.can_be_started() is expected_result, \
+    assert evse.can_be_started() is expected_result, (
         f"State {state_name} should return {expected_result} for can_be_started"
+    )
 
 
 def test_update_triggers_listeners():
